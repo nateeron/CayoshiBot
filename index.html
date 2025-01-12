@@ -14,8 +14,8 @@
 <body>
     <style>
         #chart1 {
-            width: 100%;
-            height: 80vh;
+            width: 50%;
+            height: 100vh;
         }
 
         body {
@@ -25,7 +25,8 @@
         }
 
         .tradingview-widget-container {
-            height: 60vh !important;
+            height: 100vh !important;
+            width: 50%;
         }
 
         .custom-tooltip {
@@ -51,8 +52,40 @@
             <option value="1d">1 Day</option>
         </select>
     </div>
-    <div id="chart1"></div>
+    <div style="display: flex;">
+        <div id="chart1"></div>
 
+ <!-- TradingView Widget BEGIN -->
+ <div class="tradingview-widget-container" style="height:100%;width:50%">
+    <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:50%"></div>
+    <div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/" rel="noopener nofollow"
+            target="_blank"><span class="blue-text">Track all markets on TradingView</span></a></div>
+    <script src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+        {
+            "autosize": true,
+                "symbol": "BINANCE:XRPUSDT",
+                    "interval": "1",
+                        "timezone": "Asia/Bangkok",
+                            "theme": "dark",
+                                "style": "1",
+                                    "locale": "en",
+                                        "withdateranges": true,
+                                            "hide_side_toolbar": false,
+                                                "allow_symbol_change": true,
+                                                    "watchlist": [
+                                                        "BINANCE:BNBUSDT",
+                                                        "BINANCE:XRPUSDT",
+                                                        "BINANCE:BTCUSDT"
+                                                    ],
+                                                        "calendar": false,
+                                                            "hide_volume": true,
+                                                                "support_host": "https://www.tradingview.com"
+        }
+    </script>
+</div>
+<!-- TradingView Widget END -->
+
+    </div>
     <div class="custom-tooltip" id="custom-tooltip"></div>
     <script>
         const myPriceFormatter = p => p.toFixed(4);
@@ -66,7 +99,7 @@
         //----------------------------------------------------------
         const symbo = 'XRPUSDT'
         const TimeFream = '1m'
-        const MainURL = 'http://192.168.55.59:45441/' 
+        const MainURL = 'http://127.0.0.1:45441/'
 
         //**************************************************************************************
         // [Chart Options]
@@ -257,7 +290,7 @@
         async function fetchData(req, path) {
             console.log(req)
             // Create the data to send in the POST request
-            const urldata = MainURL+'infoPrice/' + path
+            const urldata = MainURL + 'infoPrice/' + path
             const requestData = {
                 symbol: symbo,
                 tf: TimeFream,
@@ -291,7 +324,7 @@
             console.log(req)
             // Create the data to send in the POST request
             //const urldata = 'http://127.0.0.1:45441/botgrid/data_Backtest'
-            const urldata = MainURL+'botgrid/' + path
+            const urldata = MainURL + 'botgrid/' + path
             const requestData = {
                 symbol: symbo,
                 tf: TimeFream,
@@ -320,7 +353,7 @@
         }
         async function fetch_dataBackTest(start_time, limit) {
             let allData = [];
-            const req = {start_time:start_time, limit:limit};
+            const req = { start_time: start_time, limit: limit };
             try {
                 const getprice = "data_Backtest"
                 const data = await fetchData_MarkersBacktest(req, getprice);
@@ -465,7 +498,7 @@
                 }));
                 startTimestamp = processedData[0].time;
                 console.log("******************************** Load Reailtime *****************************")
-                console.log(processedData.length,startTimestamp)
+                console.log(processedData.length, startTimestamp)
                 //********************************* Load Reailtime *********************************
                 console.log(processedData)
                 //close: 2.5194
@@ -518,7 +551,7 @@
 
 
                 //------ markers arrowUp arrowDown-----------------
-                const DATA_Backtest = await fetch_dataBackTest(startTimestamp,1000);
+                const DATA_Backtest = await fetch_dataBackTest(startTimestamp, 1000);
                 console.log("DATA_Backtest")
                 console.log(DATA_Backtest)
                 //SeriesMarkerPosition: "aboveBar" | "belowBar" | "inBar"
@@ -541,74 +574,74 @@
                 //]);
                 const size = 1
                 let sell_Multi = []
-                if(DATA_Backtest){
-                markers_backtest = DATA_Backtest.flatMap(item => {
-                    const matchingItems = sell_Multi.filter(x => x === item.timestem_sell); // Check if timestem_sell exists in sell_Multi
-                    let mess = "";
-                    if (matchingItems.length > 0) {
-                        console.log("*****************************************")
-                        console.log(matchingItems)
-                        if (matchingItems.length > 1) {
-                            mess = "> X" + (matchingItems.length + 1).toString(); // Use sell_Multi.length instead of ss.length()
-                        }
-                        else if (matchingItems.length == 2) {
-                            mess = ">> X" + (matchingItems.length + 1).toString(); // Use sell_Multi.length instead of ss.length()
-                        } else if (matchingItems.length == 3) {
-                            mess = ">>> X" + (matchingItems.length + 1).toString(); // Use sell_Multi.length instead of ss.length()
-
-                        } else if (matchingItems.length ==4) {
-                            mess = ">>>> X" + (matchingItems.length + 1).toString(); // Use sell_Multi.length instead of ss.length()
-
-                        } else if (matchingItems.length == 5) {
-                            mess = ">>>>> X" + (matchingItems.length + 1).toString(); // Use sell_Multi.length instead of ss.length()
-
-                        } else if (matchingItems.length == 6) {
-
-                            mess = ">>>>> X" + (matchingItems.length + 1).toString(); // Use sell_Multi.length instead of ss.length()
-                        }else{
-                            mess = ">>>>>> X" + (matchingItems.length + 1).toString(); // Use sell_Multi.length instead of ss.length()
-
-                        }
-                    }
-                    if (item.status == 0) {
-                        return [
-                            {
-                                time: Math.floor(item.timestem_buy / 1000 + UTCBangkok), // Convert to seconds if needed
-                                position: 'belowBar',
-                                color: '#4A9FE6FF',
-                                shape: 'arrowUp',
-                                text: `Buy @ ${item.priceAction}`,
-                                size: size
+                if (DATA_Backtest) {
+                    markers_backtest = DATA_Backtest.flatMap(item => {
+                        const matchingItems = sell_Multi.filter(x => x === item.timestem_sell); // Check if timestem_sell exists in sell_Multi
+                        let mess = "";
+                        if (matchingItems.length > 0) {
+                            console.log("*****************************************")
+                            console.log(matchingItems)
+                            if (matchingItems.length > 1) {
+                                mess = "> X" + (matchingItems.length + 1).toString(); // Use sell_Multi.length instead of ss.length()
                             }
-                        ];
-                    } else {
-                        sell_Multi.push(item.timestem_sell);
-                        return [
-                            {
-                                time: Math.floor(item.timestem_buy / 1000 + UTCBangkok), // Convert to seconds if needed
-                                position: 'belowBar',
-                                color: '#4A9FE6FF',
-                                shape: 'arrowUp',
-                                text: `Buy @ ${item.priceAction}`,
-                                size: size
-                            },
-                            {
-                                time: Math.floor(item.timestem_sell / 1000 + UTCBangkok), // Convert to seconds if needed
-                                position: 'aboveBar',
-                                color: '#DA46EEFF',
-                                background: '#EEEEEEFF',
-                                shape: 'arrowDown',
-                                text: `Sell @ ${item.priceSell}  ${mess}`,
-                                size: size
+                            else if (matchingItems.length == 2) {
+                                mess = ">> X" + (matchingItems.length + 1).toString(); // Use sell_Multi.length instead of ss.length()
+                            } else if (matchingItems.length == 3) {
+                                mess = ">>> X" + (matchingItems.length + 1).toString(); // Use sell_Multi.length instead of ss.length()
+
+                            } else if (matchingItems.length == 4) {
+                                mess = ">>>> X" + (matchingItems.length + 1).toString(); // Use sell_Multi.length instead of ss.length()
+
+                            } else if (matchingItems.length == 5) {
+                                mess = ">>>>> X" + (matchingItems.length + 1).toString(); // Use sell_Multi.length instead of ss.length()
+
+                            } else if (matchingItems.length == 6) {
+
+                                mess = ">>>>> X" + (matchingItems.length + 1).toString(); // Use sell_Multi.length instead of ss.length()
+                            } else {
+                                mess = ">>>>>> X" + (matchingItems.length + 1).toString(); // Use sell_Multi.length instead of ss.length()
+
                             }
-                        ];
+                        }
+                        if (item.status == 0) {
+                            return [
+                                {
+                                    time: Math.floor(item.timestem_buy / 1000 + UTCBangkok), // Convert to seconds if needed
+                                    position: 'belowBar',
+                                    color: '#4A9FE6FF',
+                                    shape: 'arrowUp',
+                                    text: `Buy @ ${item.priceAction}`,
+                                    size: size
+                                }
+                            ];
+                        } else {
+                            sell_Multi.push(item.timestem_sell);
+                            return [
+                                {
+                                    time: Math.floor(item.timestem_buy / 1000 + UTCBangkok), // Convert to seconds if needed
+                                    position: 'belowBar',
+                                    color: '#4A9FE6FF',
+                                    shape: 'arrowUp',
+                                    text: `Buy @ ${item.priceAction}`,
+                                    size: size
+                                },
+                                {
+                                    time: Math.floor(item.timestem_sell / 1000 + UTCBangkok), // Convert to seconds if needed
+                                    position: 'aboveBar',
+                                    color: '#DA46EEFF',
+                                    background: '#EEEEEEFF',
+                                    shape: 'arrowDown',
+                                    text: `Sell @ ${item.priceSell}  ${mess}`,
+                                    size: size
+                                }
+                            ];
+                        }
+                    });
+                    if (markers_backtest.length > 0) {
+                        candlestickSeries.setMarkers(markers_backtest);
                     }
-                });
-                if (markers_backtest.length > 0) {
-                    candlestickSeries.setMarkers(markers_backtest);
-                    }
-            }
-              
+                }
+
                 // Add a horizontal line at price level 110
                 console.log("1111111111")
                 runRealtimeUpdates(symbol, interval);
@@ -618,7 +651,7 @@
                 console.log("3333333")
 
             } catch (Error) {
-                console.error("Error",Error)
+                console.error("Error", Error)
 
             }
         }
@@ -636,7 +669,7 @@
                 //    
                 //}, 2*1000);
             }
-            if(markers_backtest){
+            if (markers_backtest) {
 
                 candlestickSeries.setMarkers(markers_backtest);
             }
@@ -923,35 +956,7 @@
     </script>
 
 
-    <!-- TradingView Widget BEGIN -->
-    <div class="tradingview-widget-container" style="height:100%;width:100%">
-        <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:100%"></div>
-        <div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/" rel="noopener nofollow"
-                target="_blank"><span class="blue-text">Track all markets on TradingView</span></a></div>
-        <script src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-            {
-                "autosize": true,
-                    "symbol": "BINANCE:XRPUSDT",
-                        "interval": "1",
-                            "timezone": "Asia/Bangkok",
-                                "theme": "dark",
-                                    "style": "1",
-                                        "locale": "en",
-                                            "withdateranges": true,
-                                                "hide_side_toolbar": false,
-                                                    "allow_symbol_change": true,
-                                                        "watchlist": [
-                                                            "BINANCE:BNBUSDT",
-                                                            "BINANCE:XRPUSDT",
-                                                            "BINANCE:BTCUSDT"
-                                                        ],
-                                                            "calendar": false,
-                                                                "hide_volume": true,
-                                                                    "support_host": "https://www.tradingview.com"
-            }
-        </script>
-    </div>
-    <!-- TradingView Widget END -->
+   
 
 </body>
 
