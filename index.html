@@ -66,6 +66,8 @@
         //----------------------------------------------------------
         const symbo = 'XRPUSDT'
         const TimeFream = '1m'
+        const MainURL = 'http://192.168.55.59:45441/' 
+
         //**************************************************************************************
         // [Chart Options]
         //**************************************************************************************
@@ -255,7 +257,7 @@
         async function fetchData(req, path) {
             console.log(req)
             // Create the data to send in the POST request
-            const urldata = 'http://127.0.0.1:45441/infoPrice/' + path
+            const urldata = MainURL+'infoPrice/' + path
             const requestData = {
                 symbol: symbo,
                 tf: TimeFream,
@@ -289,7 +291,7 @@
             console.log(req)
             // Create the data to send in the POST request
             //const urldata = 'http://127.0.0.1:45441/botgrid/data_Backtest'
-            const urldata = 'http://127.0.0.1:45441/botgrid/' + path
+            const urldata = MainURL+'botgrid/' + path
             const requestData = {
                 symbol: symbo,
                 tf: TimeFream,
