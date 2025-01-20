@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Line Chart with Chart.js</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 50px;
+        }
+        canvas {
+            width: 100%;
+            height: 400px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Line Chart Displaying Amount Over Time</h2>
+    <canvas id="lineChart"></canvas>
+
+    <script>
+        // Function to fetch data from the API
+        async function fetchData() {
+            try {
+                const response = await fetch('http://127.0.0.1:45441/botgrid/report');
+                const data = await response.json();
+
+                // Prepare the labels (timestamps converted to date) and values (Amount)
+                const labels = data.map(item => {
+                    const date = new Date(item.time);
+                    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+                });
+
+                const values = data.map(item => item.Amount);
+
+                // Get the canvas element where the chart will be rendered
+                const ctx = document.getElementById('lineChart').getContext('2d');
+
+                // Create the line chart
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels, // x-axis labels (time)
+                        datasets: [{
+                            label: 'Amount Over Time', // Label for the line
+                            data: values, // y-axis data (Amount)
+                            fill: false,
+                            borderColor: 'rgb(75, 192, 192)',
+                            tension: 0.1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            x: {
+                                ticks: {
+                                    autoSkip: true,
+                                    maxTicksLimit: 6
+                                }
+                            },
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        // Fetch data and create the chart
+        fetchData();
+    </script>
+
+</body>
+</html>
